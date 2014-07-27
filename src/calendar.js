@@ -26,9 +26,8 @@ angular.module('ui.calendar', [])
                       // In this way the function will be safely executed on the next digest.
 
                       var args = arguments;
-                      var _this = this;
                       $timeout(function(){
-                        functionToWrap.apply(_this, args);
+                          functionToWrap.apply(this, args);
                       });
                   };
               }
@@ -42,7 +41,16 @@ angular.module('ui.calendar', [])
         }
         // This extracts all the information we need from the event. http://jsperf.com/angular-calendar-events-fingerprint/3
         return "" + e.__uiCalId + (e.id || '') + (e.title || '') + (e.url || '') + (+e.start || '') + (+e.end || '') +
-          (e.allDay || '') + (e.className || '') + extraEventSignature(e) || '';
+          (e.allDay || '') +
+          (e.className || '') +
+          (JSON.stringify(e.service) || '') + 
+          (JSON.stringify(e.instructor) || '') + 
+          (JSON.stringify(e.client) || '') + 
+          (e.minQuota || '') +
+          (e.maxQuota || '') +
+          (e.price || '') +
+          (e['public'] || '') +
+          extraEventSignature(e) || '';
       };
 
       this.sourcesFingerprint = function(source) {
@@ -257,11 +265,15 @@ angular.module('ui.calendar', [])
             return false;
           }
         });
-
         scope.$watch(getOptions, function(newO,oldO){
             scope.destroy();
             scope.init();
         });
+        scope.$on('filterEvents', function(){
+          console.log('here');
+          scope.destroy();
+          scope.init();
+        })
       }
     };
 }]);
